@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-20.04"
+  config.vm.box_version = "202105.25.0"
+  config.vm.network "public_network", bridge: [
+    "en0: Wi-Fi (Wireless)"
+  ]
+  config.vm.provider "virtualbox" do |vb|
+    vb.linked_clone = true
+    vb.memory = "512"
+    vb.cpus = 1
+  end
+
+  # Machine Defintiion
+  config.vm.define "gateway" do |box|
+    box.vm.hostname = "gateway"
+    box.vm.network "private_network", ip: "192.168.51.10"
+    box.vm.disk :disk, size: "3GB", primary: true
+    box.vm.provision :shell, :path => "setup/gateway.sh"
+  end
+
+  # Machine Defintiion
+  config.vm.define "mqtt" do |box|
+    box.vm.hostname = "mqtt"
+    box.vm.network "private_network", ip: "192.168.51.11"
+    box.vm.disk :disk, size: "3GB", primary: true
+    box.vm.provision :shell, :path => "setup/mosquitto.sh"
+  end
+
+  # Devices Defintiion
+  config.vm.define "devices" do |box|
+    box.vm.hostname = "devices"
+    box.vm.network "private_network", ip: "192.168.51.12"
+    box.vm.disk :disk, size: "3GB", primary: true
+    box.vm.provision :shell, :path => "setup/devices.sh"
+  end
+
+  # Machine Defintiion
+  config.vm.define "things" do |box|
+    box.vm.hostname = "things"
+    box.vm.network "private_network", ip: "192.168.51.13"
+    box.vm.disk :disk, size: "3GB", primary: true
+    box.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+    end
+    box.vm.provision :shell, :path => "setup/things.sh"
+  end
+
+end
